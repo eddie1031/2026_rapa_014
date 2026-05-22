@@ -8,17 +8,23 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
+import java.util.Map;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class OAuth2SuccessHandler
         extends SimpleUrlAuthenticationSuccessHandler {
+
+    @Value("${custom.jwt.redirection.base}")
+    private String baseUrl;
 
     private final TokenProvider tokenProvider;
 
@@ -28,6 +34,8 @@ public class OAuth2SuccessHandler
             HttpServletResponse response,
             Authentication authentication)
             throws IOException, ServletException {
+
+        //        super.onAuthenticationSuccess(request, response, authentication);
 
         log.info("onAuthenticationSuccess");
 
@@ -39,10 +47,20 @@ public class OAuth2SuccessHandler
         response.setHeader("X-RAPA-ACCESS-TOKEN", keyPair.accessToken());
         response.setHeader("X-RAPA-REFRESH-TOKEN", keyPair.refreshToken());
 
-//        super.onAuthenticationSuccess(request, response, authentication);
-
+//        "http://localhost:3000/auth"
+        getRedirectStrategy().sendRedirect(request, response, genUrlStr(keyPair));
 
     }
+
+    private String genUrlStr(KeyPair keyPair) {
+        return UriComponentsBuilder.fromUriString(baseUrl)
+                .queryParam("access", keyPair.accessToken())
+                .queryParam("refresh", keyPair.refreshToken())
+                .build()
+                .toUri()
+                .toString();
+    }
+
 
 
 }

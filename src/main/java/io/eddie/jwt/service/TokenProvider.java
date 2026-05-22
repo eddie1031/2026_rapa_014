@@ -3,6 +3,8 @@ package io.eddie.jwt.service;
 import io.eddie.jwt.config.properties.JwtProperties;
 import io.eddie.jwt.dto.KeyPair;
 import io.eddie.jwt.dto.Role;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
@@ -48,6 +50,26 @@ public class TokenProvider {
 
     private SecretKey getSecretKey() {
         return Keys.hmacShaKeyFor(jwtProperties.getSecrets().getAppKey().getBytes());
+    }
+
+    public boolean validate(String token) {
+
+        try {
+            Jwts.parser()
+                .verifyWith(getSecretKey())
+                .build()
+                .parseSignedClaims(token);
+
+            return true;
+        } catch ( JwtException e ) {
+            log.error("Token validation failed: {}", e.getMessage());
+        } catch ( IllegalStateException e ) {
+            log.error("Illegal state during token validation");
+        } catch ( Exception e ) {
+            log.error("Unexpected error during token validation: {}", e.getMessage());
+        }
+
+        return false;
     }
 
 
