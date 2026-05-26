@@ -20,9 +20,11 @@ public class RefreshTokenBlackList {
     @JoinColumn(name = "refresh_token_id")
     private RefreshToken refreshToken;
 
-
-
     private LocalDateTime createdAt = LocalDateTime.now();
     private LocalDateTime updatedAt = LocalDateTime.now();
+
+    public RefreshTokenBlackList(RefreshToken refreshToken) {
+        this.refreshToken = refreshToken;
+    }
 
 }
