@@ -1,8 +1,8 @@
 package io.eddie.jwt.dto;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import io.eddie.jwt.domain.Member;
+import lombok.*;
+import lombok.experimental.Accessors;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Map;
 
 @Getter
+@Accessors(chain = true)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class MemberDetails implements OAuth2User {
 
     @Setter
@@ -24,6 +26,23 @@ public class MemberDetails implements OAuth2User {
     private Role role;
 
     private Map<String, Object> attributes;
+
+    public static MemberDetails from(Member member) {
+
+        if ( member == null ) {
+            throw new IllegalArgumentException("Member cannot be null");
+        }
+
+        MemberDetails memberDetails = new MemberDetails();
+
+        memberDetails.id = member.getId();
+        memberDetails.email = member.getEmail();
+        memberDetails.name = member.getName();
+        memberDetails.role = member.getRole();
+
+        return memberDetails;
+
+    }
 
     @Builder
     public MemberDetails(String email, String name, Map<String, Object> attributes) {

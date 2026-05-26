@@ -3,6 +3,7 @@ package io.eddie.jwt.service;
 import io.eddie.jwt.dao.MemberRepository;
 import io.eddie.jwt.domain.Member;
 import io.eddie.jwt.dto.MemberDetails;
+import io.eddie.jwt.mapper.MemberMapper;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -66,15 +67,9 @@ public class MemberService extends DefaultOAuth2UserService {
 
         Member findMember = getById(id);
 
-        MemberDetails memberDetails = MemberDetails.builder()
-                .name(findMember.getName())
-                .email(findMember.getEmail())
-                .build();
+        return MemberDetails.from(findMember);
+//        return MemberMapper.toMemberDetails(findMember);
 
-        memberDetails.setId(findMember.getId());
-        memberDetails.setRole(findMember.getRole());
-
-        return memberDetails;
     }
 
 }
