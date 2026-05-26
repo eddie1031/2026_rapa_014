@@ -14,6 +14,9 @@ import java.util.Map;
 @Getter
 public class MemberDetails implements OAuth2User {
 
+    @Setter
+    private Long id;
+
     private String email;
     private String name;
 

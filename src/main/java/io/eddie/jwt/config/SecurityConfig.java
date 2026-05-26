@@ -1,12 +1,15 @@
 package io.eddie.jwt.config;
 
+import io.eddie.jwt.config.handlers.JwtAuthenticationFilter;
 import io.eddie.jwt.config.handlers.OAuth2SuccessHandler;
+import io.eddie.jwt.service.TokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsUtils;
 
 @Configuration
@@ -14,6 +17,8 @@ import org.springframework.web.cors.CorsUtils;
 public class SecurityConfig {
 
     private final OAuth2SuccessHandler oauth2SuccessHandler;
+//    private final TokenProvider tokenProvider;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) {
@@ -35,11 +40,13 @@ public class SecurityConfig {
                             .permitAll()
                         .requestMatchers("/admin/**")
                             .hasAuthority("ADMIN")
-                        .requestMatchers("/user/**")
-                            .hasAuthority("USER")
+                        .requestMatchers("/member/**")
+                            .hasAuthority("MEMBER")
                         .anyRequest()
                             .authenticated()
                 )
+
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
 
                 .build();
 

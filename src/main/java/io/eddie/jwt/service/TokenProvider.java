@@ -3,9 +3,8 @@ package io.eddie.jwt.service;
 import io.eddie.jwt.config.properties.JwtProperties;
 import io.eddie.jwt.dto.KeyPair;
 import io.eddie.jwt.dto.Role;
-import io.jsonwebtoken.JwtException;
-import io.jsonwebtoken.JwtParser;
-import io.jsonwebtoken.Jwts;
+import io.eddie.jwt.dto.TokenBody;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -55,11 +54,7 @@ public class TokenProvider {
     public boolean validate(String token) {
 
         try {
-            Jwts.parser()
-                .verifyWith(getSecretKey())
-                .build()
-                .parseSignedClaims(token);
-
+            parseClaims(token);
             return true;
         } catch ( JwtException e ) {
             log.error("Token validation failed: {}", e.getMessage());
@@ -70,6 +65,27 @@ public class TokenProvider {
         }
 
         return false;
+    }
+
+    public Jws<Claims> parseClaims(String token) {
+        return Jwts.parser()
+            .verifyWith(getSecretKey())
+            .build()
+            .parseSignedClaims(token);
+    }
+
+    public TokenBody parseJwt(String token) {
+
+        Jws<Claims> claimsJws = parseClaims(token);
+
+        String sub = claimsJws.getPayload().getSubject();
+        Object role = claimsJws.getPayload().get("role");
+
+        return new TokenBody(
+            Long.parseLong(sub),
+            Role.valueOf(role.toString())
+        );
+
     }
 
 
